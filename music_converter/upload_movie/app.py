@@ -2,6 +2,14 @@ import json
 
 # import requests
 
+# import ffmpeg
+# def convert_movie_to_music(movie_path,music_path): 
+#     # 入力
+#     stream = ffmpeg.input(movie_path)
+#     # 出力
+#     stream = ffmpeg.output(stream,music_path) 
+#     # 実行
+#     ffmpeg.run(stream)
 
 def lambda_handler(event, context):
     """Sample pure Lambda function
@@ -35,8 +43,5 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps({
-            "message": "music converter",
-            # "location": ip.text.replace("\n", "")
-        }),
+        "body": json.dumps(event),
     }

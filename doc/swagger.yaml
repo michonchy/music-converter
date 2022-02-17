@@ -1,0 +1,199 @@
+swagger: "2.0"
+info:
+  description: "This is a sample server Petstore server.  You can find out more about     Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For this sample, you can use the api key `special-key` to test the authorization     filters."
+  version: "1.0.0"
+  title: "melody"
+host: "petstore.swagger.io"
+basePath: "/v2"
+tags:
+- name: "movie"
+  description: "任意のMP4動画ファイル"
+- name: "music"
+  description: "MP4から変換された音楽ファイル"
+schemes:
+- "https"
+paths:
+  /movie/upload:
+    post:
+      tags:
+        - "movie"
+      summary: Root
+      description: 
+        Root Method.
+      consumes:
+        - multipart/form-data
+      produces:
+        - "application/json"
+      parameters:
+        - in: formData
+          name: upfile
+          type: file
+          description: The file to upload.
+          x-mimetype: movie/mp4
+      responses:
+        "201":
+          description: "動画ファイルが正常に登録された"
+          schema:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+                description: "uuid"
+              name:
+                type: "string"
+                example: "doggie"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 201
+        uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MusicConverterFunction.Arn}/invocations
+        passthroughBehavior: when_no_templates
+        httpMethod: POST
+        type: aws
+        requestTemplates:
+          application/json: |
+            {
+              #foreach($key in $input.params().querystring.keySet())
+              "$key": "$util.escapeJavaScript($input.params().querystring.get($key))" #if($foreach.hasNext),#end
+              #end
+            }
+  /movie/{usersId}/convert:
+    put:
+      tags:
+        - "movie"
+      summary: "任意のMP4動画ファイルを音声ファイルに変換する"
+      operationId: "convertMovie"
+      parameters:
+         - in: body
+           name: param
+           description: The file to upload.
+           schema:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+                description: "uuid"
+         - in: "path"
+           name: "usersId"
+           description: "動画を所持している人のユーザーID"
+           required: true
+           type: "integer"
+           format: "int64"
+      responses:
+        "201":
+          description: "動画ファイルが正常に変換された"
+          schema:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+                description: "uuid"
+              name:
+                type: "string"
+                example: "doggie"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 201
+        uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MusicConverterFunction.Arn}/invocations
+        passthroughBehavior: when_no_templates
+        httpMethod: PUT
+        type: aws
+        requestTemplates:
+          application/json: |
+            {
+              #foreach($key in $input.params().querystring.keySet())
+              "$key": "$util.escapeJavaScript($input.params().querystring.get($key))" #if($foreach.hasNext),#end
+              #end
+            }
+  /movie/{usersId}/{moviesId}:
+    put:
+      tags:
+        - "movie"
+      summary: "任意のMP4動画ファイルを音声ファイルに変換する"
+      operationId: "updateMovie"
+      parameters:
+         - in: body
+           name: param
+           description: The file to upload.
+           schema:
+            type: "object"
+            properties:
+              name:
+                type: "string"
+                description: "uuid"
+         - in: "path"
+           name: "usersId"
+           description: "動画を所持している人のユーザーID"
+           required: true
+           type: "integer"
+           format: "int64"
+         - in: "path"
+           name: "moviesId"
+           description: "動画のID"
+           required: true
+           type: "string"
+      responses:
+        "201":
+          description: "動画ファイルが正常に更新された"
+          schema:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+                description: "uuid"
+              name:
+                type: "string"
+                example: "doggie"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 201
+        uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MusicConverterFunction.Arn}/invocations
+        passthroughBehavior: when_no_templates
+        httpMethod: PUT
+        type: aws
+        requestTemplates:
+          application/json: |
+            {
+              #foreach($key in $input.params().querystring.keySet())
+              "$key": "$util.escapeJavaScript($input.params().querystring.get($key))" #if($foreach.hasNext),#end
+              #end
+            }
+  /music/{usersId}/{musicsId}:
+    get:
+      tags:
+        - "music"
+      summary: "音声ファイルを取得する"
+      operationId: "getMusic"
+      parameters:
+         - in: "path"
+           name: "usersId"
+           description: "動画を所持している人のユーザーID"
+           required: true
+           type: "integer"
+           format: "int64"
+         - in: "path"
+           name: "musicsId"
+           description: "音声ファイルのID"
+           required: true
+           type: "string"
+      responses:
+        "200":
+          description: "音声ファイルが取得できた"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: 200
+        uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MusicConverterFunction.Arn}/invocations
+        passthroughBehavior: when_no_templates
+        httpMethod: GET
+        type: aws
+        requestTemplates:
+          application/json: |
+            {
+              #foreach($key in $input.params().querystring.keySet())
+              "$key": "$util.escapeJavaScript($input.params().querystring.get($key))" #if($foreach.hasNext),#end
+              #end
+            }
+

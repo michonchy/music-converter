@@ -11,20 +11,26 @@ Globals:
     Timeout: 3
 
 Resources:
+  MelodyAPI:
+    Type: AWS::Serverless::Api # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      StageName: dev
+      DefinitionUri: doc/swagger.yaml
+  MusicConverterFunctionPermission: 
+    Type: AWS::Lambda::Permission # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref MusicConverterFunction
+      Principal: apigateway.amazonaws.com
   MusicConverterFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: music_converter/
+      #MinimumCompressionSize: 10485760
+      CodeUri: music_converter/upload_movie/
       Handler: app.lambda_handler
       Runtime: python3.8
       Architectures:
         - x86_64
-      Events:
-        MusicConverter:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello
-            Method: get
   MusicConverterBucket:
     Type: AWS::S3::Bucket # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -34,9 +40,6 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  MusicConverterApi:
-    Description: "API Gateway endpoint URL for Prod stage for music converter function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   MusicConverterFunction:
     Description: "music converter Lambda Function ARN"
     Value: !GetAtt MusicConverterFunction.Arn
